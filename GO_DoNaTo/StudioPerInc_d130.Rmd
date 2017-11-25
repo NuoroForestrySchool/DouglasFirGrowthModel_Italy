@@ -1,0 +1,78 @@
+---
+title: "Modelling brest height diameter growth"
+author: Roberto Scotti
+date: November 2017
+output: 
+  html_document
+---
+<!--memo:   github_document--> 
+
+<!--# Retriving data from Googlesheet source-->
+
+```{r setup, include=FALSE, cache=TRUE}
+library(tidyverse)
+setwd("~/RICERCA/GitHub/DouglasFirGrowthModel_Italy/GO_DoNaTo")
+# knitr::opts_knit$set(root.dir = "~/RICERCA/GitHub/DouglasFirGrowthModel_Italy/GO_DoNaTo")
+# setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+# f <- "CurrentScriptDir.R"
+# if (file.exists(f)) source(f)
+# setwd(z.csd())
+#  NOT working when 'knitting'
+knitr::opts_chunk$set(echo = TRUE)
+source("ReadForestInventory.R", echo = T)
+```
+
+# Evaluation of data quality
+
+```{r visualize}
+library(ggplot2)
+df <- increment_borings %>%
+  select(1:5) %>%
+  left_join(select(stands, id_ads, eta2017)) %>%
+  mutate(d_inc_f = `da-sottoc-a-5anni` / 5,
+         delta_eta = eta2017-40,
+         d_inc_v = `da-sottoc-a-CIRCA_40anniDiEtà` / delta_eta,
+         delta_eta = as.factor(delta_eta))
+
+ggplot(df, aes(d_inc_f, d_inc_v, color = delta_eta)) + 
+  geom_point(alpha = .3) +
+  geom_smooth(linetype="dashed") +
+  geom_smooth(method = "lm")
+
+lm(data=df, d_inc_v~d_inc_f * delta_eta) %>%
+  summary()
+
+```
+
+# Comments on basic measurements appraisal
+(continous lines: linear model;  dashed lines: loess)
+
+Two readings have been taken on each increment boring:  
+* **d_inc_f** : the cumulative width of the last 5 year-rings  
+* **d_inc_v** : the width till the age of 40 years  
+  
+The second one includes a variable number of rings, depending on current age. Standardising to yearly increments, for most cases relatively similar values are attained, but significant difference are evident at least for 'delta' equal 38 and 7.
+
+In these cases yearly increments estimated based on just 2 or even 33 more year-rings are doubled with respect to the estimate based only on the last 5 years.
+
+*There seems to be a SYSTEMATIC mistake in these readings!*
+
+
+```{r}
+source("ComputeSiteIndex.R")
+df %>%
+  select(id_ads, id_fusto, d130, d_inc_f, delta_eta, d_inc_v) %>%
+  left_join(select(h_dom, id_ads, age, d_dom, h_dom, SI_MN94_50)) %>%
+  mutate(age = as.factor(age),
+         SC = as.factor(round(SI_MN94_50))) %>%
+  ggplot(aes(x = d130, y = d_inc_f, color = SC)) +
+  geom_point(alpha = .4) +
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2), size = 2, se =F,
+              aes(linetype = id_ads)) +
+  geom_smooth(aes(linetype = id_ads), se =F) +
+  facet_wrap(~age)
+
+  
+```
+
+   

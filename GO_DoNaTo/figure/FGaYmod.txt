@@ -1,0 +1,126 @@
+Start
+
+Vedi anche: access inventory data
+
+access inventory data
+
+Vedi anche: Start, initialiazie stands list
+
+initialiazie stands list
+
+Vedi anche: access inventory data, all required info available?, update stands list
+
+NO
+
+Vedi anche:      Site Index missing?     , other problems (under dev.)
+
+YES
+
+Vedi anche: Age missing?, other problems (under dev.)
+
+YES
+
+Vedi anche:      Site Index missing?     , compute dominant height
+
+ending condition attained?
+
+Vedi anche: update stand table, YES, NO
+
+all required info available?
+
+Vedi anche: initialiazie stands list, YES, NO
+
+YES
+
+Vedi anche: ending condition attained?, final stand table - produce summary
+
+YES
+
+Vedi anche: all required info available?, compile stand table
+
+other problems (under dev.)
+
+Vedi anche: NO, YES, Stop
+
+final stand table - produce summary
+
+Vedi anche: YES, Stop
+
+update stand table
+
+Vedi anche: estimate dbh growth for each class, ending condition attained?
+
+estimate dbh growth for each class
+
+Vedi anche: [evaluate if thinning is required 
+and execute treatment] , update stand table, choose appropriate:
+* Site Index classification tool
+* height by dbh estimation model
+* dbh growth function
+
+[evaluate if thinning is required 
+and execute treatment] 
+
+Vedi anche: estimate dominant height and 
+mean height for all dbh classes, estimate dbh growth for each class
+
+estimate dominant height and 
+mean height for all dbh classes
+
+Vedi anche: compile stand table, [evaluate if thinning is required 
+and execute treatment] , choose appropriate:
+* Site Index classification tool
+* height by dbh estimation model
+* dbh growth function
+
+compile stand table
+
+Vedi anche: YES, estimate dominant height and 
+mean height for all dbh classes, NO
+
+compute dominant height
+
+Vedi anche: YES, assess Site Index
+
+     Site Index missing?     
+
+Vedi anche: YES, NO, NO
+
+NO
+
+Vedi anche: Age missing?,      Site Index missing?     
+
+NO
+
+Vedi anche: ending condition attained?, compile stand table
+
+NO
+
+Vedi anche: all required info available?, Age missing?
+
+Age missing?
+
+Vedi anche: NO, NO, YES
+
+assess Site Index
+
+Vedi anche: compute dominant height, update stands list, choose appropriate:
+* Site Index classification tool
+* height by dbh estimation model
+* dbh growth function
+
+update stands list
+
+Vedi anche: initialiazie stands list, assess Site Index
+
+choose appropriate:
+* Site Index classification tool
+* height by dbh estimation model
+* dbh growth function
+
+Vedi anche: assess Site Index, estimate dominant height and 
+mean height for all dbh classes, estimate dbh growth for each class
+
+Stop
+
+Vedi anche: final stand table - produce summary, other problems (under dev.)

@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/331402/4360f156353148d9ad16035ec810e4ad
+bundleId: https://api.rpubs.com/api/v1/document/331402/4360f156353148d9ad16035ec810e4ad
+url: http://rpubs.com/scotti/331402
+when: 1510947492.88283

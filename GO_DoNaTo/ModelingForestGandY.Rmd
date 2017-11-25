@@ -1,0 +1,128 @@
+---
+title: "Growth and yield model (evenaged stands)"
+author: Roberto Scotti
+date: November, 2017
+output:
+  html_document:
+    smart: false
+  html_notebook: default
+---
+
+
+# Introduction
+
+![General flowchart](figure/FGaYmod.svg){ width=80% }
+
+# Workplan: main modules
+~~~~~~~
+access inventory data  
+initialiazie stands list  
+  
+choose appropriate:  
+	* Site Index classification tool  
+	* height by dbh estimation model  
+	* dbh growth function  
+  
+CHECK  
+	all required info available?  
+		YES, proceed to GROW  
+	Age missing?  
+		YES, goto (A)  
+	Site Index missing?  
+		NO, goto (A)  
+		compute dominant height  
+		assess Site Index  
+		update stands list  
+		(back to (0))  
+	(A) other problems (under dev.), STOP  
+
+GROW  
+	(1) compile stand table  
+	estimate dominant height and mean height for all dbh classes  
+	[evaluate if thinning is required and execute treatment]   
+	estimate dbh growth for each class  
+	update stand table  
+	ending condition attained?  
+		NO, (back to (1))  
+final stand table - produce summary 
+~~~~~~~
+
+# Implementation
+
+## access inventory data
+
+```{r }
+library(googlesheets)
+library(dplyr)
+library(tidyr)
+library(magrittr)
+getwd()
+source("Functions/access2DB.R", echo=F, verbose=F)
+# t <- 
+tibble::tribble(
+  ~table,              ~sheet,
+  "species",           "Specie",
+  "stands",            "AdS",
+  "dbh_tally",         "Cavallettamento",
+  "heights",           "Altezze",
+  "increment_borings", "Carotine") %>% 
+  group_by(sheet) %>% 
+  do(assign(.$table, gs_read(DataBase, ws=.$sheet), pos=1)) %>%
+  rm()
+# save(list=as.vector(t$table), file="GO_DonatoDB.Rdata")
+# load("../GO_DonatoDB.Rdata")
+dbh_tally <- dbh_tally %>% 
+  gather("species", "freq", -id_ads, -d_130, na.rm=T) %>%
+  left_join(select(stands, id_ads, sup_m_quadri)) %>%
+  mutate(n_ha = 10000 * freq / sup_m_quadri) 
+
+```
+
+```{r}
+# dominant diameter
+cum_frq <- 
+  dbh_tally %>%
+  group_by(id_ads, d_130) %>%
+  summarise(n_ha_tot = sum(n_ha)) %>%
+  group_by(id_ads) %>%
+  arrange(desc(d_130)) %>%
+  do(mutate(., cum_n_ha = cumsum(n_ha_tot)))
+d_dom <-
+  cum_frq %>%
+  filter(cum_n_ha >= 100) %>%
+  group_by(id_ads) %>%
+  filter(d_130 == max(d_130)) %>%
+  mutate(n_ha_tot = n_ha_tot - (cum_n_ha - 100)) %>%
+  union(filter(cum_frq, cum_n_ha < 100)) %>%
+  summarise(n_tot = sum(n_ha_tot), 
+            d_dom = sqrt(sum(n_ha_tot * d_130^2)/n_tot ))
+
+source("Functions/F_SiteIndex_MN94.R")
+current_year <- 2017
+# dominant height and 
+# site class  evaluation
+h_dom <-
+  heights %>%
+  filter(sp == "dou") %>%
+  group_by(id_ads) %>%
+  do(hm=loess(h~diam, .)) %>%
+  left_join(d_dom) %>%
+  group_by(id_ads) %>%
+  do(d_dom = .$d_dom, 
+     f = predict(.$hm[[1]], data.frame(diam=.$d_dom), se = TRUE)) %>%
+  group_by(id_ads) %>%
+  do(d_dom = .$d_dom[[1]], 
+     h_dom = (.$f[[1]]$fit[[1]]),
+     se.h_dom = (.$f[[1]]$se.fit[[1]])
+     ) %>%
+  left_join(select(stands, id_ads, eta2017)) %>%
+  mutate(current_year = 2017, age = eta2017, d_dom = d_dom[[1]],
+         h_dom = h_dom[[1]],  se.h_dom = se.h_dom[[1]],
+         plantation_year = 2017 - eta2017,
+         SI_MN94_50 = dougSI_MN94(age, h_dom)) %>%
+  select(-eta2017)
+
+```
+
+
+[[to be continued ...]]
