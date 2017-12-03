@@ -1,15 +1,18 @@
 ## Compute VolumeTable for the simulation
-# Input: Vtab with the required (dbh, h_tot) combinations
+# Input: Vtab with the required (dbh, h_tot) combinations +
+#        dtesta_ass
+#        dtesta_fusto
 # Output: added computed cols
 require(TapeR)
 
 Vtab$v_ass <- Vtab$h_ass <- Vtab$v_corm <- Vtab$h_corm <- Vtab$v_tot <- 0
-dtesta_ass <- 25
-dtesta_fusto <- 8
+#dtesta_ass <- 25
+#dtesta_fusto <- 8
 ## TapeR non lavora in parallelo!! Processa un solo fusto alla volta
 cat(paste("To process:",nrow(Vtab), "cases - Processing case #: "))
 for(i in 1:nrow(Vtab)) {
   cat(i)
+  cat(", ")
   Vtab$v_tot[i] <- unlist(with(
     Vtab[i,]
     , E_VOL_AB_HmDm_HT.f(

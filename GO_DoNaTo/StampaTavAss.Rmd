@@ -1,0 +1,87 @@
+---
+title: "Douglasia, appennino toscano: tavola assortimentale"
+author: "Roberto Scotti"
+date: "02 dicembre 2017"
+output: html_document
+---
+
+### Introduzione
+Esempio di tavola prodotta utilizzando la funzione di profilo (provvisoria) elaborata, sulla base di rilievi del prof. la Marca. (Scotti, 2017)
+
+Scotti R., 2017 "Proiezione a 10 anni del valore di un impianto: la modellistica dendroauxometrica" in: "I Georgofili. Quaderni 2016-I. Realtà e prospettive nella coltivazione della douglasia in Italia. Firenze, 12 maggio 2016". Polistampa, Firenze. Pagg. 65-85. ISBN: 9788859617099
+
+```{r setup, include=FALSE, echo=FALSE}
+library(tidyverse)
+library(knitr)
+```
+### Tavola
+
+```{r prinTable, echo=FALSE}
+load("Functions/PRINTAssortmentsVolumeTable.Rdata")
+h <- Vtab %>%
+  ungroup() %>%
+  transmute(dbh = dbh, clh = ht_r, crm = h_corm, seg = h_ass) %>%
+  mutate(tot = NA) %>%
+  gather("level", "height", c("tot", "crm", "seg")) %>%
+  mutate(height = round(height, 1)) %>%
+  spread(clh, height, sep = "-")
+
+library(kableExtra)
+options(knitr.kable.NA = '') 
+head <- paste0("' ' = 2, '", paste(seq(25, 50, 5),"', = 2 '", sep="", collapse = ""), collapse = "")
+#v <- 
+xt <- Vtab %>%
+  ungroup() %>%
+  select(dbh, ht_r, starts_with("v")) %>%
+  rename(clv = ht_r, tot = v_tot, crm = v_corm, seg = v_ass) %>%
+  gather("level", "vol", c("tot", "crm", "seg")) %>%
+  mutate(vol = round(vol, 1)) %>%
+  spread(clv, vol, sep = ":") %>%
+  full_join(h, ., by = c("dbh", "level")) %>%
+  select(names(.)[c(1, 2, 3 + rep(c(0, 6), times=6) + rep(0:5, each=2))]) %>%
+  mutate(level = factor(level, levels = c("tot", "crm","seg"), ordered=T)) %>%
+  arrange(dbh, level)
+
+names(xt) <- c("dbh", "ass", rep(c("h", "v"), 6))
+
+xt %>%
+  kable(format = "html", 
+        caption = "Tavola di cubatura con tre 'assortimenti'[note] -
+            'dbh' d_130 [cm],     'h' altezza [m],     'v' volume [m^3]") %>%
+  column_spec(3+2*(0:5), border_left = T) %>%
+  column_spec(1, bold = T) %>%
+  collapse_rows(1) %>%
+  row_spec(seq(3, 12*3, 3), bold = T) %>%
+  kable_styling(position = "c", bootstrap_options = c("striped", "condensed")) %>%
+  add_header_above(c(" " = 1, "h_tot" = 1, "25" = 2, "30" = 2, "35" = 2, "40" = 2, "45" = 2, "50" = 2)) %>%
+  add_footnote(c("'tot' = volume dendrometrico,  'crm' cormometrico svettato a 8 cm, 'seg' toppi da sega con diametro minimo di 25 cm"))
+
+
+```
+
+### Rappresentazioni grafiche dei valori tabulati
+
+#### Altezze [m]
+
+```{r heights, echo=FALSE}
+Vtab %>%
+  select(dbh, starts_with("h")) %>%
+  gather("level", "height", starts_with("h")) %>%
+  ggplot() +
+  geom_point(aes(jitter(dbh), height, color = level))
+
+```
+
+#### Volumi [m^3]
+
+```{r vols, echo=FALSE}
+Vtab %>%
+  select(dbh, starts_with("v")) %>%
+  gather("ass", "vol", starts_with("v")) %>%
+  ggplot() +
+  geom_line(aes(dbh, vol, 
+                color = ass, linetype = as.factor(ht_r)),
+            size = 1.5)
+
+```
+
